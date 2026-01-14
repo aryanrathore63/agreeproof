@@ -1,0 +1,332 @@
+# AgreeProof Backend .gitignore
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime Data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage Directory
+coverage/
+*.lcov
+.nyc_output
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Logs
+logs
+*.log
+
+# Build Outputs
+dist/
+build/
+out/
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Temporary Files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Package Manager Files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+test-results/
+playwright-report/
+
+# Security Files
+*.pem
+*.key
+*.crt
+*.p12
+
+# Local Configuration
+config/local.json
+config/development.json
+config/production.json
+
+# Backup Files
+*.bak
+*.backup
+
+# Docker
+.dockerignore
+
+# Monitoring
+.nyc_output
+
+# Profiling
+*.cpuprofile
+*.heapprofile
+
+# Memory Dumps
+*.hprof
+*.dump
+
+# Uploads
+uploads/
+temp/
+
+# Session Storage
+sessions/
+
+# SSL Certificates
+*.pem
+*.key
+*.crt
+*.csr
+
+# JWT Keys
+jwt-key.pem
+jwt-public.pem
+jwt-private.pem
+
+# MongoDB
+*.db
+*.sqlite
+
+# Redis
+dump.rdb
+
+# Elasticsearch
+elasticsearch-data/
+
+# Local Development
+.local/
+local/
+
+# Debug Files
+debug.log
+error.log
+access.log
+
+# Performance Monitoring
+*.perf
+*.profile
+
+# Backup and Restore
+backups/
+*.backup
+*.restore
+
+# Migration Files (if using database migrations)
+migrations-done/
+
+# Temporary Upload Directories
+temp-uploads/
+user-uploads/
+
+# Cache Files
+.cache/
+*.cache
+
+# Lock Files
+*.lock
+
+# System Files
+*.swp
+*.swo
+*~
+
+# Windows Specific
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Linux Specific
+*~
+
+# macOS Specific
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IDE Specific
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Node.js Specific
+.npm
+.eslintcache
+.node_repl_history
+
+# Grunt Intermediate Storage
+.grunt
+
+# Bower Dependency Directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Backend Specific
+# Add any backend-specific ignore patterns here
+
+# API Keys and Secrets
+api-keys.txt
+secrets.txt
+credentials.json
+
+# Database Backups
+*.sql
+*.dump
+
+# SSL Certificates
+ssl/
+certs/
+
+# Log Files
+*.log
+logs/
+
+# Temporary Files
+tmp/
+temp/
+
+# Test Coverage
+coverage/
+.coverage
+
+# Build Artifacts
+dist/
+build/
+
+# Environment Files
+.env.*
+!.env.example
+
+# Configuration Files
+config/local.*
+config/production.*
+config/development.*

@@ -1,0 +1,422 @@
+name: Backend Deployment (Render)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agreeproof-backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'agreeproof-backend/**'
+      - '.github/workflows/backend-deploy.yml'
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  BACKEND_PATH: './agreeproof-backend'
+
+jobs:
+  test:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.BACKEND_PATH }}/package-lock.json
+          
+      - name: Install dependencies
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm ci
+          
+      - name: Run linting
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run lint
+          
+      - name: Run tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:ci
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/agreeproof_test
+          JWT_SECRET: test_secret_key
+          
+      - name: Run integration tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:integration
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/agreeproof_test
+          JWT_SECRET: test_secret_key
+          
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ${{ env.BACKEND_PATH }}/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.BACKEND_PATH }}/package-lock.json
+          
+      - name: Install dependencies
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm ci
+          
+      - name: Run npm audit
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm audit --audit-level=moderate
+          
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+          
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [test, security-scan]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/agreeproof-backend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ env.BACKEND_PATH }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  deploy-staging:
+    name: Deploy to Staging (Render)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Deploy to Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          wait-for-success: true
+          
+      - name: Run health check
+        run: |
+          echo "Waiting for deployment to be ready..."
+          sleep 30
+          
+          # Health check endpoint
+          HEALTH_URL="https://${{ secrets.RENDER_STAGING_URL }}/health"
+          MAX_RETRIES=30
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s "$HEALTH_URL" > /dev/null; then
+              echo "✅ Health check passed"
+              break
+            else
+              echo "⏳ Waiting for service to be healthy... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
+              sleep 10
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+            fi
+          done
+          
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "❌ Health check failed after $MAX_RETRIES attempts"
+            exit 1
+          fi
+          
+      - name: Run post-deployment tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:e2e:staging
+        env:
+          API_BASE_URL: https://${{ secrets.RENDER_STAGING_URL }}
+
+  deploy-production:
+    name: Deploy to Production (Render)
+    runs-on: ubuntu-latest
+    needs: [test, security-scan, build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Deploy to Render
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          wait-for-success: true
+          
+      - name: Run health check
+        run: |
+          echo "Waiting for deployment to be ready..."
+          sleep 30
+          
+          # Health check endpoint
+          HEALTH_URL="https://${{ secrets.RENDER_PRODUCTION_URL }}/health"
+          MAX_RETRIES=30
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if curl -f -s "$HEALTH_URL" > /dev/null; then
+              echo "✅ Health check passed"
+              break
+            else
+              echo "⏳ Waiting for service to be healthy... ($((RETRY_COUNT + 1))/$MAX_RETRIES)"
+              sleep 10
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+            fi
+          done
+          
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "❌ Health check failed after $MAX_RETRIES attempts"
+            exit 1
+          fi
+          
+      - name: Run post-deployment tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:e2e:production
+        env:
+          API_BASE_URL: https://${{ secrets.RENDER_PRODUCTION_URL }}
+          
+      - name: Run database migrations
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run migrate:production
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          
+      - name: Notify deployment success
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          text: |
+            🎉 Backend deployment to production completed successfully!
+            
+            🌐 **URL**: https://${{ secrets.RENDER_PRODUCTION_URL }}
+            📦 **Commit**: ${{ github.sha }}
+            👤 **Author**: ${{ github.actor }}
+            🐳 **Docker Image**: ${{ secrets.DOCKER_USERNAME }}/agreeproof-backend:${{ github.sha }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Install Artillery
+        run: npm install -g artillery@latest
+        
+      - name: Run load tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          artillery run tests/performance/load-test.yml --target https://${{ secrets.RENDER_PRODUCTION_URL }}
+          
+      - name: Run stress tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          artillery run tests/performance/stress-test.yml --target https://${{ secrets.RENDER_PRODUCTION_URL }}
+          
+      - name: Upload performance reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports
+          path: ${{ env.BACKEND_PATH }}/test-results/
+          retention-days: 30
+
+  database-backup:
+    name: Database Backup
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Create database backup
+        run: |
+          # Install MongoDB tools
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-database-tools
+          
+          # Create backup
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          BACKUP_FILE="agreeproof_backup_${TIMESTAMP}.gz"
+          
+          mongodump --uri="${{ secrets.MONGODB_URI }}" --gzip --archive="$BACKUP_FILE"
+          
+          # Upload to cloud storage (example with AWS S3)
+          aws s3 cp "$BACKUP_FILE" "s3://${{ secrets.AWS_S3_BACKUP_BUCKET }}/backups/$BACKUP_FILE"
+          
+          # Clean up local file
+          rm "$BACKUP_FILE"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+  rollback:
+    name: Rollback (if needed)
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Rollback deployment
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
+          deploy-hook: ${{ secrets.RENDER_ROLLBACK_HOOK }}
+          
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          channel: '#deployments'
+          text: |
+            🚨 **Deployment Rollback Triggered**
+            
+            The production deployment failed and has been rolled back.
+            
+            📦 **Commit**: ${{ github.sha }}
+            👤 **Author**: ${{ github.actor }}
+            🔗 **Workflow**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always()
+    
+    steps:
+      - name: Cleanup old Docker images
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // This would typically be handled by Docker Hub's automated cleanup
+            // or a separate cleanup job
+            console.log('Docker image cleanup handled by registry policies');
+            
+      - name: Cleanup old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            
+            const oldArtifacts = artifacts.data.artifacts
+              .filter(artifact => artifact.created_at < new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+              .map(artifact => artifact.id);
+            
+            for (const artifactId of oldArtifacts) {
+              await github.rest.actions.deleteArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifactId,
+              });
+            }

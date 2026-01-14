@@ -1,0 +1,335 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '18'
+  FRONTEND_PATH: './agreeproof-frontend'
+  BACKEND_PATH: './agreeproof-backend'
+
+jobs:
+  frontend-validation:
+    name: Frontend Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.FRONTEND_PATH }}/package-lock.json
+          
+      - name: Install dependencies
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm ci
+          
+      - name: Run type checking
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm run type-check
+          
+      - name: Run linting
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm run lint
+          
+      - name: Run tests
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm run test:ci
+          
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ${{ env.FRONTEND_PATH }}/coverage/lcov.info
+          flags: frontend-pr
+          name: frontend-pr-coverage
+          fail_ci_if_error: false
+
+  backend-validation:
+    name: Backend Validation
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: ${{ env.BACKEND_PATH }}/package-lock.json
+          
+      - name: Install dependencies
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm ci
+          
+      - name: Run linting
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run lint
+          
+      - name: Run tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:ci
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/agreeproof_test
+          JWT_SECRET: test_secret_key
+          
+      - name: Run integration tests
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm run test:integration
+        env:
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/agreeproof_test
+          JWT_SECRET: test_secret_key
+          
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ${{ env.BACKEND_PATH }}/coverage/lcov.info
+          flags: backend-pr
+          name: backend-pr-coverage
+          fail_ci_if_error: false
+
+  security-validation:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    needs: [frontend-validation, backend-validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: Frontend security audit
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm audit --audit-level=moderate
+          
+      - name: Backend security audit
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm audit --audit-level=moderate
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Run Super-Linter
+        uses: github/super-linter@v4
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_JAVASCRIPT_ES: true
+          VALIDATE_TYPESCRIPT_ES: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
+          VALIDATE_DOCKERFILE: true
+          VALIDATE_GITHUB_ACTIONS: true
+          LINTER_RULES_PATH: /
+          JAVASCRIPT_ES_CONFIG_FILE: .eslintrc.js
+          TYPESCRIPT_ES_CONFIG_FILE: .eslintrc.js
+
+  build-validation:
+    name: Build Validation
+    runs-on: ubuntu-latest
+    needs: [frontend-validation, backend-validation]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Build frontend
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm ci
+          npm run build:production
+          
+      - name: Build backend Docker image
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          docker build -t agreeproof-backend:test .
+          
+      - name: Analyze bundle size
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npx bundlesize
+
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Check frontend dependencies
+        run: |
+          cd ${{ env.FRONTEND_PATH }}
+          npm ci
+          npm outdated || true
+          npx audit-ci --moderate
+          
+      - name: Check backend dependencies
+        run: |
+          cd ${{ env.BACKEND_PATH }}
+          npm ci
+          npm outdated || true
+          npx audit-ci --moderate
+
+  pr-requirements:
+    name: PR Requirements Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Check PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            
+            if (!pr.body || pr.body.trim().length < 50) {
+              core.setFailed('PR description must be at least 50 characters long');
+              return;
+            }
+            
+            // Check for required sections in PR description
+            const requiredSections = ['## Changes', '## Testing', '## Checklist'];
+            const missingSections = requiredSections.filter(section => !pr.body.includes(section));
+            
+            if (missingSections.length > 0) {
+              core.setFailed(`PR description is missing required sections: ${missingSections.join(', ')}`);
+              return;
+            }
+            
+      - name: Check commit messages
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.pulls.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            
+            const conventionalCommitRegex = /^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .+/;
+            
+            for (const commit of commits.data) {
+              if (!conventionalCommitRegex.test(commit.commit.message)) {
+                core.warning(`Commit "${commit.commit.message}" does not follow conventional commit format`);
+              }
+            }
+
+  notify-pr-status:
+    name: Notify PR Status
+    runs-on: ubuntu-latest
+    needs: [frontend-validation, backend-validation, security-validation, code-quality, build-validation, dependency-check, pr-requirements]
+    if: always()
+    
+    steps:
+      - name: Notify success
+        if: ${{ needs.frontend-validation.result == 'success' && needs.backend-validation.result == 'success' && needs.security-validation.result == 'success' && needs.code-quality.result == 'success' && needs.build-validation.result == 'success' && needs.dependency-check.result == 'success' && needs.pr-requirements.result == 'success' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ **All PR validations passed successfully!**\n\nThis pull request is ready for review and merge.'
+            });
+            
+      - name: Notify failure
+        if: ${{ needs.frontend-validation.result == 'failure' || needs.backend-validation.result == 'failure' || needs.security-validation.result == 'failure' || needs.code-quality.result == 'failure' || needs.build-validation.result == 'failure' || needs.dependency-check.result == 'failure' || needs.pr-requirements.result == 'failure' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const failedJobs = [];
+            if ('${{ needs.frontend-validation.result }}' === 'failure') failedJobs.push('Frontend Validation');
+            if ('${{ needs.backend-validation.result }}' === 'failure') failedJobs.push('Backend Validation');
+            if ('${{ needs.security-validation.result }}' === 'failure') failedJobs.push('Security Validation');
+            if ('${{ needs.code-quality.result }}' === 'failure') failedJobs.push('Code Quality');
+            if ('${{ needs.build-validation.result }}' === 'failure') failedJobs.push('Build Validation');
+            if ('${{ needs.dependency-check.result }}' === 'failure') failedJobs.push('Dependency Check');
+            if ('${{ needs.pr-requirements.result }}' === 'failure') failedJobs.push('PR Requirements');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **PR validation failed**\n\nFailed checks: ${failedJobs.join(', ')}\n\nPlease fix the issues and push new commits.`
+            });

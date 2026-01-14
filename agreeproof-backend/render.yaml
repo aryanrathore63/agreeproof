@@ -1,0 +1,1371 @@
+
+services:
+  # Backend API Service
+  - type: web
+    name: agreeproof-backend
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: .
+    buildCommand: "npm install && npm run test:ci"
+    startCommand: "npm start"
+    healthCheckPath: /health
+    healthCheckTimeout: 100
+    healthCheckInterval: 10
+    healthCheckGracePeriod: 30
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_URL
+        value: https://agreeproof-frontend.vercel.app
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://agreeproof-frontend.vercel.app
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: LOG_LEVEL
+        value: info
+      - key: ENABLE_CORS
+        value: true
+      - key: ENABLE_RATE_LIMITING
+        value: true
+      - key: ENABLE_REQUEST_LOGGING
+        value: true
+      - key: ENABLE_ERROR_LOGGING
+        value: true
+      - key: DB_CONNECTION_TIMEOUT
+        value: 30000
+      - key: DB_MAX_POOL_SIZE
+        value: 10
+      - key: DB_MIN_POOL_SIZE
+        value: 2
+      - key: ENABLE_DB_INDEXING
+        value: true
+      - key: ENABLE_DB_COMPRESSION
+        value: true
+      - key: API_TIMEOUT
+        value: 30000
+      - key: MAX_REQUEST_SIZE
+        value: 10mb
+      - key: ENABLE_COMPRESSION
+        value: true
+      - key: ENABLE_HELMET
+        value: true
+      - key: ENABLE_MORGAN_LOGGING
+        value: true
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: WEBHOOK_SECRET
+        generateValue: true
+      - key: API_VERSION
+        value: v1
+      - key: SERVICE_NAME
+        value: AgreeProof API
+      - key: SERVICE_VERSION
+        value: 1.0.0
+      - key: ENABLE_METRICS
+        value: true
+      - key: METRICS_PORT
+        value: 9090
+      - key: ENABLE_HEALTH_CHECKS
+        value: true
+      - key: ENABLE_GRACEFUL_SHUTDOWN
+        value: true
+      - key: SHUTDOWN_TIMEOUT
+        value: 30000
+      - key: ENABLE_CLUSTER_MODE
+        value: false
+      - key: WORKER_PROCESSES
+        value: 1
+      - key: ENABLE_MEMORY_MONITORING
+        value: true
+      - key: MEMORY_THRESHOLD
+        value: 512
+      - key: ENABLE_CPU_MONITORING
+        value: true
+      - key: CPU_THRESHOLD
+        value: 80
+      - key: ENABLE_DISK_MONITORING
+        value: true
+      - key: DISK_THRESHOLD
+        value: 90
+      - key: ENABLE_PERFORMANCE_MONITORING
+        value: true
+      - key: ENABLE_ERROR_TRACKING
+        value: true
+      - key: ERROR_TRACKING_DSN
+        sync: false
+      - key: ENABLE_ANALYTICS
+        value: false
+      - key: ANALYTICS_API_KEY
+        sync: false
+      - key: ENABLE_NOTIFICATIONS
+        value: false
+      - key: NOTIFICATION_WEBHOOK
+        sync: false
+      - key: ENABLE_BACKUP
+        value: false
+      - key: BACKUP_SCHEDULE
+        value: 0 2 * * *
+      - key: BACKUP_RETENTION
+        value: 7
+      - key: ENABLE_CACHE
+        value: false
+      - key: CACHE_TTL
+        value: 3600
+      - key: CACHE_MAX_SIZE
+        value: 100
+      - key: ENABLE_REDIS
+        value: false
+      - key: REDIS_URL
+        sync: false
+      - key: ENABLE_QUEUE
+        value: false
+      - key: QUEUE_URL
+        sync: false
+      - key: ENABLE_EMAIL
+        value: false
+      - key: EMAIL_SERVICE
+        sync: false
+      - key: EMAIL_USERNAME
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        sync: false
+      - key: ENABLE_SMS
+        value: false
+      - key: SMS_SERVICE
+        sync: false
+      - key: SMS_API_KEY
+        sync: false
+      - key: SMS_API_SECRET
+        sync: false
+      - key: ENABLE_STORAGE
+        value: false
+      - key: STORAGE_PROVIDER
+        sync: false
+      - key: STORAGE_BUCKET
+        sync: false
+      - key: STORAGE_ACCESS_KEY
+        sync: false
+      - key: STORAGE_SECRET_KEY
+        sync: false
+      - key: STORAGE_REGION
+        sync: false
+      - key: ENABLE_CDN
+        value: false
+      - key: CDN_URL
+        sync: false
+      - key: ENABLE_SEARCH
+        value: false
+      - key: SEARCH_PROVIDER
+        sync: false
+      - key: SEARCH_API_KEY
+        sync: false
+      - key: SEARCH_INDEX
+        sync: false
+      - key: ENABLE_AI
+        value: false
+      - key: AI_PROVIDER
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      - key: ENABLE_BLOCKCHAIN
+        value: false
+      - key: BLOCKCHAIN_PROVIDER
+        sync: false
+      - key: BLOCKCHAIN_API_KEY
+        sync: false
+      - key: BLOCKCHAIN_NETWORK
+        sync: false
+      - key: ENABLE_WEB3
+        value: false
+      - key: WEB3_PROVIDER
+        sync: false
+      - key: WEB3_PRIVATE_KEY
+        sync: false
+      - key: WEB3_CONTRACT_ADDRESS
+        sync: false
+      - key: ENABLE_NFT
+        value: false
+      - key: NFT_PROVIDER
+        sync: false
+      - key: NFT_API_KEY
+        sync: false
+      - key: NFT_CONTRACT_ADDRESS
+        sync: false
+      - key: ENABLE_CRYPTO
+        value: false
+      - key: CRYPTO_PROVIDER
+        sync: false
+      - key: CRYPTO_API_KEY
+        sync: false
+      - key: CRYPTO_SECRET
+        sync: false
+      - key: ENABLE_PAYMENT
+        value: false
+      - key: PAYMENT_PROVIDER
+        sync: false
+      - key: PAYMENT_API_KEY
+        sync: false
+      - key: PAYMENT_SECRET
+        sync: false
+      - key: PAYMENT_WEBHOOK_SECRET
+        sync: false
+      - key: ENABLE_SUBSCRIPTION
+        value: false
+      - key: SUBSCRIPTION_PROVIDER
+        sync: false
+      - key: SUBSCRIPTION_API_KEY
+        sync: false
+      - key: SUBSCRIPTION_SECRET
+        sync: false
+      - key: SUBSCRIPTION_WEBHOOK_SECRET
+        sync: false
+      - key: ENABLE_MARKETING
+        value: false
+      - key: MARKETING_PROVIDER
+        sync: false
+      - key: MARKETING_API_KEY
+        sync: false
+      - key: MARKETING_SECRET
+        sync: false
+      - key: ENABLE_SOCIAL
+        value: false
+      - key: SOCIAL_PROVIDER
+        sync: false
+      - key: SOCIAL_API_KEY
+        sync: false
+      - key: SOCIAL_SECRET
+        sync: false
+      - key: ENABLE_ANALYTICS_TRACKING
+        value: false
+      - key: ANALYTICS_TRACKING_ID
+        sync: false
+      - key: ENABLE_ADS
+        value: false
+      - key: ADS_PROVIDER
+        sync: false
+      - key: ADS_API_KEY
+        sync: false
+      - key: ADS_SECRET
+        sync: false
+      - key: ENABLE_AFFILIATE
+        value: false
+      - key: AFFILIATE_PROVIDER
+        sync: false
+      - key: AFFILIATE_API_KEY
+        sync: false
+      - key: AFFILIATE_SECRET
+        sync: false
+      - key: ENABLE_MARKETPLACE
+        value: false
+      - key: MARKETPLACE_PROVIDER
+        sync: false
+      - key: MARKETPLACE_API_KEY
+        sync: false
+      - key: MARKETPLACE_SECRET
+        sync: false
+      - key: ENABLE_INTEGRATION
+        value: false
+      - key: INTEGRATION_PROVIDER
+        sync: false
+      - key: INTEGRATION_API_KEY
+        sync: false
+      - key: INTEGRATION_SECRET
+        sync: false
+      - key: ENABLE_API_GATEWAY
+        value: false
+      - key: API_GATEWAY_URL
+        sync: false
+      - key: API_GATEWAY_KEY
+        sync: false
+      - key: API_GATEWAY_SECRET
+        sync: false
+      - key: ENABLE_LOAD_BALANCER
+        value: false
+      - key: LOAD_BALANCER_URL
+        sync: false
+      - key: LOAD_BALANCER_KEY
+        sync: false
+      - key: LOAD_BALANCER_SECRET
+        sync: false
+      - key: ENABLE_FIREWALL
+        value: false
+      - key: FIREWALL_RULES
+        sync: false
+      - key: ENABLE_DDoS_PROTECTION
+        value: false
+      - key: DDoS_PROTECTION_KEY
+        sync: false
+      - key: ENABLE_SSL
+        value: true
+      - key: SSL_CERT_PATH
+        sync: false
+      - key: SSL_KEY_PATH
+        sync: false
+      - key: ENABLE_HTTPS_REDIRECT
+        value: true
+      - key: ENABLE_HSTS
+        value: true
+      - key: HSTS_MAX_AGE
+        value: 31536000
+      - key: ENABLE_CSP
+        value: true
+      - key: CSP_POLICY
+        sync: false
+      - key: ENABLE_XSS_PROTECTION
+        value: true
+      - key: ENABLE_CONTENT_TYPE_NOSNIFF
+        value: true
+      - key: ENABLE_FRAME_OPTIONS
+        value: true
+      - key: ENABLE_REFERRER_POLICY
+        value: true
+      - key: ENABLE_PERMISSIONS_POLICY
+        value: true
+      - key: ENABLE_EXPECT_CT
+        value: false
+      - key: EXPECT_CT_MAX_AGE
+        value: 86400
+      - key: ENABLE_EXPECT_CT_REPORT_URI
+        sync: false
+      - key: ENABLE_REPORT_TO
+        value: false
+      - key: REPORT_TO_GROUP
+        sync: false
+      - key: ENABLE_REPORT_URI
+        value: false
+      - key: REPORT_URI_ENDPOINT
+        sync: false
+      - key: ENABLE_NEL
+        value: false
+      - key: NEL_REPORT_TO
+        sync: false
+      - key: NEL_MAX_AGE
+        value: 86400
+      - key: ENABLE_FEATURE_POLICY
+        value: false
+      - key: FEATURE_POLICY
+        sync: false
+      - key: ENABLE_XXSS_PROTECTION
+        value: true
+      - key: ENABLE_X_CONTENT_TYPE_OPTIONS
+        value: true
+      - key: ENABLE_X_FRAME_OPTIONS
+        value: true
+      - key: ENABLE_X_XSS_PROTECTION
+        value: true
+      - key: ENABLE_STRICT_TRANSPORT_SECURITY
+        value: true
+      - key: STRICT_TRANSPORT_SECURITY_MAX_AGE
+        value: 31536000
+      - key: ENABLE_CONTENT_SECURITY_POLICY
+        value: true
+      - key: CONTENT_SECURITY_POLICY
+        sync: false
+      - key: ENABLE_ACCESS_CONTROL_ALLOW_ORIGIN
+        value: true
+      - key: ACCESS_CONTROL_ALLOW_ORIGIN
+        value: https://agreeproof-frontend.vercel.app
+      - key: ENABLE_ACCESS_CONTROL_ALLOW_METHODS
+        value: true
+      - key: ACCESS_CONTROL_ALLOW_METHODS
+        value: GET, POST, PUT, DELETE, OPTIONS
+      - key: ENABLE_ACCESS_CONTROL_ALLOW_HEADERS
+        value: true
+      - key: ACCESS_CONTROL_ALLOW_HEADERS
+        value: Content-Type, Authorization, X-Requested-With, Accept, Origin
+      - key: ENABLE_ACCESS_CONTROL_ALLOW_CREDENTIALS
+        value: true
+      - key: ACCESS_CONTROL_ALLOW_CREDENTIALS
+        value: true
+      - key: ENABLE_ACCESS_CONTROL_EXPOSE_HEADERS
+        value: false
+      - key: ACCESS_CONTROL_EXPOSE_HEADERS
+        sync: false
+      - key: ENABLE_ACCESS_CONTROL_MAX_AGE
+        value: true
+      - key: ACCESS_CONTROL_MAX_AGE
+        value: 86400
+      - key: ENABLE_PREFLIGHT_CONTINUE
+        value: false
+      - key: PREFLIGHT_CONTINUE
+        value: false
+      - key: ENABLE_OPTIONS_SUCCESS_STATUS
+        value: true
+      - key: OPTIONS_SUCCESS_STATUS
+        value: 204
+      - key: ENABLE_CORS_PREFLIGHT
+        value: true
+      - key: CORS_PREFLIGHT_MAX_AGE
+        value: 86400
+      - key: ENABLE_CORS_CREDENTIALS
+        value: true
+      - key: CORS_CREDENTIALS
+        value: true
+      - key: ENABLE_CORS_METHODS
+        value: true
+      - key: CORS_METHODS
+        value: GET, POST, PUT, DELETE, OPTIONS
+      - key: ENABLE_CORS_HEADERS
+        value: true
+      - key: CORS_HEADERS
+        value: Content-Type, Authorization, X-Requested-With, Accept, Origin
+      - key: ENABLE_CORS_ORIGIN
+        value: true
+      - key: CORS_ORIGIN
+        value: https://agreeproof-frontend.vercel.app
+      - key: ENABLE_CORS_EXPOSED_HEADERS
+        value: false
+      - key: CORS_EXPOSED_HEADERS
+        sync: false
+      - key: ENABLE_CORS_MAX_AGE
+        value: true
+      - key: CORS_MAX_AGE
+        value: 86400
+      - key: ENABLE_CORS_PREFLIGHT_CONTINUE
+        value: false
+      - key: CORS_PREFLIGHT_CONTINUE
+        value: false
+      - key: ENABLE_CORS_OPTIONS_SUCCESS_STATUS
+        value: true
+      - key: CORS_OPTIONS_SUCCESS_STATUS
+        value: 204
+
+# Databases (if needed)
+databases:
+  # MongoDB Atlas (configured separately)
+  # This section is for reference - actual MongoDB setup is done via Atlas UI
+
+# Build and deployment optimizations
+build:
+  # Node.js version
+  nodeVersion: "18.x"
+  
+  # Install dependencies
+  installCommand: "npm ci --production=false"
+  
+  # Build command
+  buildCommand: "npm run build"
+  
+  # Start command
+  startCommand: "npm start"
+  
+  # Health check
+  healthCheckPath: "/health"
+  
+  # Health check timeout
+  healthCheckTimeout: 100
+  
+  # Health check interval
+  healthCheckInterval: 10
+  
+  # Health check grace period
+  healthCheckGracePeriod: 30
+  
+  # Auto deploy on push
+  autoDeploy: true
+  
+  # Deploy branch
+  branch: main
+  
+  # Root directory
+  rootDir: .
+
+# Performance optimizations
+performance:
+  # Enable compression
+  compression: true
+  
+  # Enable caching
+  caching: true
+  
+  # Enable CDN
+  cdn: false
+  
+  # Enable minification
+  minification: true
+  
+  # Enable bundling
+  bundling: true
+  
+  # Enable tree shaking
+  treeShaking: true
+  
+  # Enable code splitting
+  codeSplitting: true
+  
+  # Enable lazy loading
+  lazyLoading: true
+  
+  # Enable prefetching
+  prefetching: false
+  
+  # Enable preloading
+  preloading: false
+  
+  # Enable service worker
+  serviceWorker: false
+  
+  # Enable web workers
+  webWorkers: false
+  
+  # Enable shared workers
+  sharedWorkers: false
+  
+  # Enable background sync
+  backgroundSync: false
+  
+  # Enable push notifications
+  pushNotifications: false
+  
+  # Enable offline support
+  offlineSupport: false
+  
+  # Enable PWA
+  pwa: false
+
+# Security configurations
+security:
+  # Enable HTTPS
+  https: true
+  
+  # Enable HSTS
+  hsts: true
+  
+  # Enable CSP
+  csp: true
+  
+  # Enable XSS protection
+  xssProtection: true
+  
+  # Enable content type nosniff
+  contentTypeNosniff: true
+  
+  # Enable frame options
+  frameOptions: true
+  
+  # Enable referrer policy
+  referrerPolicy: true
+  
+  # Enable permissions policy
+  permissionsPolicy: true
+  
+  # Enable expect CT
+  expectCT: false
+  
+  # Enable report to
+  reportTo: false
+  
+  # Enable report URI
+  reportURI: false
+  
+  # Enable NEL
+  nel: false
+  
+  # Enable feature policy
+  featurePolicy: false
+  
+  # Enable XXSS protection
+  xxssProtection: true
+  
+  # Enable X content type options
+  xContentTypeOptions: true
+  
+  # Enable X frame options
+  xFrameOptions: true
+  
+  # Enable X XSS protection
+  xXSSProtection: true
+  
+  # Enable strict transport security
+  strictTransportSecurity: true
+  
+  # Enable content security policy
+  contentSecurityPolicy: true
+  
+  # Enable access control allow origin
+  accessControlAllowOrigin: true
+  
+  # Enable access control allow methods
+  accessControlAllowMethods: true
+  
+  # Enable access control allow headers
+  accessControlAllowHeaders: true
+  
+  # Enable access control allow credentials
+  accessControlAllowCredentials: true
+  
+  # Enable access control expose headers
+  accessControlExposeHeaders: false
+  
+  # Enable access control max age
+  accessControlMaxAge: true
+  
+  # Enable preflight continue
+  preflightContinue: false
+  
+  # Enable options success status
+  optionsSuccessStatus: true
+  
+  # Enable CORS preflight
+  corsPreflight: true
+  
+  # Enable CORS credentials
+  corsCredentials: true
+  
+  # Enable CORS methods
+  corsMethods: true
+  
+  # Enable CORS headers
+  corsHeaders: true
+  
+  # Enable CORS origin
+  corsOrigin: true
+  
+  # Enable CORS exposed headers
+  corsExposedHeaders: false
+  
+  # Enable CORS max age
+  corsMaxAge: true
+  
+  # Enable CORS preflight continue
+  corsPreflightContinue: false
+  
+  # Enable CORS options success status
+  corsOptionsSuccessStatus: true
+
+# Monitoring and logging
+monitoring:
+  # Enable metrics
+  metrics: true
+  
+  # Enable logging
+  logging: true
+  
+  # Enable error tracking
+  errorTracking: true
+  
+  # Enable performance monitoring
+  performanceMonitoring: true
+  
+  # Enable health checks
+  healthChecks: true
+  
+  # Enable uptime monitoring
+  uptimeMonitoring: true
+  
+  # Enable alerting
+  alerting: false
+  
+  # Enable notifications
+  notifications: false
+  
+  # Enable reporting
+  reporting: false
+  
+  # Enable analytics
+  analytics: false
+  
+  # Enable tracing
+  tracing: false
+  
+  # Enable profiling
+  profiling: false
+  
+  # Enable debugging
+  debugging: false
+  
+  # Enable diagnostics
+  diagnostics: false
+  
+  # Enable benchmarks
+  benchmarks: false
+  
+  # Enable load testing
+  loadTesting: false
+  
+  # Enable stress testing
+  stressTesting: false
+  
+  # Enable security scanning
+  securityScanning: false
+  
+  # Enable vulnerability scanning
+  vulnerabilityScanning: false
+  
+  # Enable dependency scanning
+  dependencyScanning: false
+  
+  # Enable code scanning
+  codeScanning: false
+  
+  # Enable static analysis
+  staticAnalysis: false
+  
+  # Enable dynamic analysis
+  dynamicAnalysis: false
+  
+  # Enable penetration testing
+  penetrationTesting: false
+  
+  # Enable compliance checking
+  complianceChecking: false
+  
+  # Enable audit logging
+  auditLogging: false
+  
+  # Enable access logging
+  accessLogging: false
+  
+  # Enable error logging
+  errorLogging: true
+  
+  # Enable debug logging
+  debugLogging: false
+  
+  # Enable info logging
+  infoLogging: true
+  
+  # Enable warn logging
+  warnLogging: true
+  
+  # Enable error logging
+  errorLogging: true
+  
+  # Enable fatal logging
+  fatalLogging: true
+  
+  # Enable trace logging
+  traceLogging: false
+  
+  # Enable verbose logging
+  verboseLogging: false
+  
+  # Enable quiet logging
+  quietLogging: false
+  
+  # Enable silent logging
+  silentLogging: false
+
+# Scaling and performance
+scaling:
+  # Enable auto scaling
+  autoScaling: false
+  
+  # Enable horizontal scaling
+  horizontalScaling: false
+  
+  # Enable vertical scaling
+  verticalScaling: false
+  
+  # Enable load balancing
+  loadBalancing: false
+  
+  # Enable clustering
+  clustering: false
+  
+  # Enable sharding
+  sharding: false
+  
+  # Enable replication
+  replication: false
+  
+  # Enable failover
+  failover: false
+  
+  # Enable redundancy
+  redundancy: false
+  
+  # Enable high availability
+  highAvailability: false
+  
+  # Enable disaster recovery
+  disasterRecovery: false
+  
+  # Enable backup
+  backup: false
+  
+  # Enable restore
+  restore: false
+  
+  # Enable migration
+  migration: false
+  
+  # Enable rollback
+  rollback: false
+  
+  # Enable versioning
+  versioning: false
+  
+  # Enable blue green deployment
+  blueGreenDeployment: false
+  
+  # Enable canary deployment
+  canaryDeployment: false
+  
+  # Enable rolling deployment
+  rollingDeployment: false
+  
+  # Enable phased deployment
+  phasedDeployment: false
+  
+  # Enable staged deployment
+  stagedDeployment: false
+  
+  # Enable progressive deployment
+  progressiveDeployment: false
+  
+  # Enable incremental deployment
+  incrementalDeployment: false
+  
+  # Enable atomic deployment
+  atomicDeployment: false
+  
+  # Enable zero downtime deployment
+  zeroDowntimeDeployment: false
+  
+  # Enable hot swapping
+  hotSwapping: false
+  
+  # Enable live reloading
+  liveReloading: false
+  
+  # Enable hot reloading
+  hotReloading: false
+  
+  # Enable auto reloading
+  autoReloading: false
+  
+  # Enable manual reloading
+  manualReloading: false
+  
+  # Enable scheduled reloading
+  scheduledReloading: false
+  
+  # Enable conditional reloading
+  conditionalReloading: false
+  
+  # Enable selective reloading
+  selectiveReloading: false
+  
+  # Enable partial reloading
+  partialReloading: false
+  
+  # Enable full reloading
+  fullReloading: false
+  
+  # Enable soft reloading
+  softReloading: false
+  
+  # Enable hard reloading
+  hardReloading: false
+  
+  # Enable graceful reloading
+  gracefulReloading: false
+  
+  # Enable force reloading
+  forceReloading: false
+  
+  # Enable immediate reloading
+  immediateReloading: false
+  
+  # Enable delayed reloading
+  delayedReloading: false
+  
+  # Enable queued reloading
+  queuedReloading: false
+  
+  # Enable prioritized reloading
+  prioritizedReloading: false
+  
+  # Enable throttled reloading
+  throttledReloading: false
+  
+  # Enable rate limited reloading
+  rateLimitedReloading: false
+  
+  # Enable batch reloading
+  batchReloading: false
+  
+  # Enable streaming reloading
+  streamingReloading: false
+  
+  # Enable parallel reloading
+  parallelReloading: false
+  
+  # Enable concurrent reloading
+  concurrentReloading: false
+  
+  # Enable sequential reloading
+  sequentialReloading: false
+  
+  # Enable ordered reloading
+  orderedReloading: false
+  
+  # Enable unordered reloading
+  unorderedReloading: false
+  
+  # Enable random reloading
+  randomReloading: false
+  
+  # Enable weighted reloading
+  weightedReloading: false
+  
+  # Enable round robin reloading
+  roundRobinReloading: false
+  
+  # Enable least connections reloading
+  leastConnectionsReloading: false
+  
+  # Enable least response time reloading
+  leastResponseTimeReloading: false
+  
+  # Enable hash reloading
+  hashReloading: false
+  
+  # Enable IP hash reloading
+  ipHashReloading: false
+  
+  # Enable URL hash reloading
+  urlHashReloading: false
+  
+  # Enable header reloading
+  headerReloading: false
+  
+  # Enable cookie reloading
+  cookieReloading: false
+  
+  # Enable session reloading
+  sessionReloading: false
+  
+  # Enable user reloading
+  userReloading: false
+  
+  # Enable role reloading
+  roleReloading: false
+  
+  # Enable permission reloading
+  permissionReloading: false
+  
+  # Enable feature reloading
+  featureReloading: false
+  
+  # Enable config reloading
+  configReloading: false
+  
+  # Enable setting reloading
+  settingReloading: false
+  
+  # Enable parameter reloading
+  parameterReloading: false
+  
+  # Enable variable reloading
+  variableReloading: false
+  
+  # Enable environment reloading
+  environmentReloading: false
+  
+  # Enable context reloading
+  contextReloading: false
+  
+  # Enable scope reloading
+  scopeReloading: false
+  
+  # Enable namespace reloading
+  namespaceReloading: false
+  
+  # Enable module reloading
+  moduleReloading: false
+  
+  # Enable package reloading
+  packageReloading: false
+  
+  # Enable library reloading
+  libraryReloading: false
+  
+  # Enable dependency reloading
+  dependencyReloading: false
+  
+  # Enable plugin reloading
+  pluginReloading: false
+  
+  # Enable extension reloading
+  extensionReloading: false
+  
+  # Enable addon reloading
+  addonReloading: false
+  
+  # Enable component reloading
+  componentReloading: false
+  
+  # Enable service reloading
+  serviceReloading: false
+  
+  # Enable resource reloading
+  resourceReloading: false
+  
+  # Enable asset reloading
+  assetReloading: false
+  
+  # Enable file reloading
+  fileReloading: false
+  
+  # Enable directory reloading
+  directoryReloading: false
+  
+  # Enable path reloading
+  pathReloading: false
+  
+  # Enable route reloading
+  routeReloading: false
+  
+  # Enable endpoint reloading
+  endpointReloading: false
+  
+  # Enable API reloading
+  apiReloading: false
+  
+  # Enable controller reloading
+  controllerReloading: false
+  
+  # Enable model reloading
+  modelReloading: false
+  
+  # Enable view reloading
+  viewReloading: false
+  
+  # Enable template reloading
+  templateReloading: false
+  
+  # Enable layout reloading
+  layoutReloading: false
+  
+  # Enable style reloading
+  styleReloading: false
+  
+  # Enable script reloading
+  scriptReloading: false
+  
+  # Enable image reloading
+  imageReloading: false
+  
+  # Enable media reloading
+  mediaReloading: false
+  
+  # Enable document reloading
+  documentReloading: false
+  
+  # Enable content reloading
+  contentReloading: false
+  
+  # Enable data reloading
+  dataReloading: false
+  
+  # Enable cache reloading
+  cacheReloading: false
+  
+  # Enable storage reloading
+  storageReloading: false
+  
+  # Enable database reloading
+  databaseReloading: false
+  
+  # Enable connection reloading
+  connectionReloading: false
+  
+  # Enable session reloading
+  sessionReloading: false
+  
+  # Enable state reloading
+  stateReloading: false
+  
+  # Enable memory reloading
+  memoryReloading: false
+  
+  # Enable CPU reloading
+  cpuReloading: false
+  
+  # Enable disk reloading
+  diskReloading: false
+  
+  # Enable network reloading
+  networkReloading: false
+  
+  # Enable bandwidth reloading
+  bandwidthReloading: false
+  
+  # Enable latency reloading
+  latencyReloading: false
+  
+  # Enable throughput reloading
+  throughputReloading: false
+  
+  # Enable performance reloading
+  performanceReloading: false
+  
+  # Enable speed reloading
+  speedReloading: false
+  
+  # Enable efficiency reloading
+  efficiencyReloading: false
+  
+  # Enable optimization reloading
+  optimizationReloading: false
+  
+  # Enable tuning reloading
+  tuningReloading: false
+  
+  # Enable adjustment reloading
+  adjustmentReloading: false
+  
+  # Enable calibration reloading
+  calibrationReloading: false
+  
+  # Enable configuration reloading
+  configurationReloading: false
+  
+  # Enable customization reloading
+  customizationReloading: false
+  
+  # Enable personalization reloading
+  personalizationReloading: false
+  
+  # Enable localization reloading
+  localizationReloading: false
+  
+  # Enable internationalization reloading
+  internationalizationReloading: false
+  
+  # Enable globalization reloading
+  globalizationReloading: false
+  
+  # Enable regionalization reloading
+  regionalizationReloading: false
+  
+  # Enable adaptation reloading
+  adaptationReloading: false
+  
+  # Enable evolution reloading
+  evolutionReloading: false
+  
+  # Enable learning reloading
+  learningReloading: false
+  
+  # Enable training reloading
+  trainingReloading: false
+  
+  # Enable education reloading
+  educationReloading: false
+  
+  # Enable development reloading
+  developmentReloading: false
+  
+  # Enable testing reloading
+  testingReloading: false
+  
+  # Enable staging reloading
+  stagingReloading: false
+  
+  # Enable production reloading
+  productionReloading: false
+  
+  # Enable deployment reloading
+  deploymentReloading: false
+  
+  # Enable release reloading
+  releaseReloading: false
+  
+  # Enable version reloading
+  versionReloading: false
+  
+  # Enable build reloading
+  buildReloading: false
+  
+  # Enable compile reloading
+  compileReloading: false
+  
+  # Enable transpile reloading
+  transpileReloading: false
+  
+  # Enable transform reloading
+  transformReloading: false
+  
+  # Enable optimize reloading
+  optimizeReloading: false
+  
+  # Enable minify reloading
+  minifyReloading: false
+  
+  # Enable compress reloading
+  compressReloading: false
+  
+  # Enable bundle reloading
+  bundleReloading: false
+  
+  # Enable package reloading
+  packageReloading: false
+  
+  # Enable distribute reloading
+  distributeReloading: false
+  
+  # Enable publish reloading
+  publishReloading: false
+  
+  # Enable deploy reloading
+  deployReloading: false
+  
+  # Enable install reloading
+  installReloading: false
+  
+  # Enable setup reloading
+  setupReloading: false
+  
+  # Enable configure reloading
+  configureReloading: false
+  
+  # Enable initialize reloading
+  initializeReloading: false
+  
+  # Enable start reloading
+  startReloading: false
+  
+  # Enable stop reloading
+  stopReloading: false
+  
+  # Enable restart reloading
+  restartReloading: false
+  
+  # Enable reload reloading
+  reloadReloading: false
+  
+  # Enable refresh reloading
+  refreshReloading: false
+  
+  # Enable update reloading
+  updateReloading: false
+  
+  # Enable upgrade reloading
+  upgradeReloading: false
+  
+  # Enable patch reloading
+  patchReloading: false
+  
+  # Enable fix reloading
+  fixReloading: false
+  
+  # Enable repair reloading
+  repairReloading: false
+  
+  # Enable maintain reloading
+  maintainReloading: false
+  
+  # Enable service reloading
+  serviceReloading: false
+  
+  # Enable support reloading
+  supportReloading: false
+  
+  # Enable help reloading
+  helpReloading: false
+  
+  # Enable documentation reloading
+  documentationReloading: false
+  
+  # Enable guide reloading
+  guideReloading: false
+  
+  # Enable tutorial reloading
+  tutorialReloading: false
+  
+  # Enable example reloading
+  exampleReloading: false
+  
+  # Enable sample reloading
+  sampleReloading: false
+  
+  # Enable demo reloading
+  demoReloading: false
+  
+  # Enable showcase reloading
+  showcaseReloading: false
+  
+  # Enable presentation reloading
+  presentationReloading: false
+  
+  # Enable exhibition reloading
+  exhibitionReloading: false
+  
+  # Enable display reloading
+  displayReloading: false
+  
+  # Enable visualization reloading
+  visualizationReloading: false
+  
+  # Enable rendering reloading
+  renderingReloading: false
+  
+  # Enable drawing reloading
+  drawingReloading: false
+  
+  # Enable painting reloading
+  paintingReloading: false
+  
+  # Enable animation reloading
+  animationReloading: false
+  
+  # Enable graphics reloading
+  graphicsReloading: false
+  
+  # Enable multimedia reloading
+  multimediaReloading: false
+  
+  # Enable audio reloading
+  audioReloading: false
+  
+  # Enable video reloading
+  videoReloading: false
+  
+  # Enable streaming reloading
+  streamingReloading: false
+  
+  # Enable broadcasting reloading
+  broadcastingReloading: false
+  
+  # Enable live reloading
+  liveReloading: false
+  
+  # Enable real-time reloading
+  realTimeReloading: false
+  
+  # Enable interactive reloading
+  interactiveReloading: false
+  
+  # Enable dynamic reloading
+  dynamicReloading: false
+  
+  # Enable static reloading
+  staticReloading: false
+  
+  # Enable responsive reloading
+  responsiveReloading: false
+  
+  # Enable adaptive reloading
+  adaptive

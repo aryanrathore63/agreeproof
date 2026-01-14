@@ -1,0 +1,362 @@
+# AgreeProof Project .gitignore
+# Comprehensive ignore file for production-ready development
+
+# =============================================================================
+# ENVIRONMENT VARIABLES
+# =============================================================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+# Keep .env.example files
+!.env.example
+!.env.production.example
+
+# =============================================================================
+# OPERATING SYSTEM FILES
+# =============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# IDE AND EDITOR FILES
+# =============================================================================
+# VSCode
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iws
+*.iml
+*.ipr
+*.ipr
+*.iws
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# =============================================================================
+# DEPENDENCIES AND PACKAGE MANAGERS
+# =============================================================================
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+
+# Package manager lock files (keep package-lock.json for npm)
+# yarn.lock
+# pnpm-lock.yaml
+
+# =============================================================================
+# BUILD OUTPUTS AND DISTRIBUTION
+# =============================================================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vuepress/dist/
+.serverless/
+.cache/
+.parcel-cache/
+
+# =============================================================================
+# LOGS AND RUNTIME DATA
+# =============================================================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# TESTING AND COVERAGE
+# =============================================================================
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+playwright-report/
+test-results.xml
+junit.xml
+
+# =============================================================================
+# CACHE DIRECTORIES
+# =============================================================================
+.cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+.vite/
+
+# =============================================================================
+# TEMPORARY FILES
+# =============================================================================
+*.tmp
+*.temp
+.tmp/
+.temp/
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# =============================================================================
+# DATABASE FILES
+# =============================================================================
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+# =============================================================================
+# SECURITY AND CERTIFICATES
+# =============================================================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.csr
+
+# =============================================================================
+# LOCAL CONFIGURATION
+# =============================================================================
+config/local.json
+config/development.json
+config/production.json
+config/staging.json
+
+# =============================================================================
+# DEPLOYMENT AND INFRASTRUCTURE
+# =============================================================================
+.deploy/
+.serverless/
+*.kubeconfig
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# =============================================================================
+# CLOUD PROVIDER CONFIGS
+# =============================================================================
+.aws/
+.gcloud/
+.azure/
+.aws-sam/
+
+# =============================================================================
+# MONITORING AND PROFILING
+# =============================================================================
+*.cpuprofile
+*.heapprofile
+*.hprof
+*.dump
+*.perf
+
+# =============================================================================
+# UPLOADS AND USER CONTENT
+# =============================================================================
+uploads/
+temp/
+user-content/
+static/uploads/
+
+# =============================================================================
+# DOCUMENTATION GENERATION
+# =============================================================================
+docs/build/
+docs/_build/
+site/
+
+# =============================================================================
+# STORYBOOK AND COMPONENT DOCS
+# =============================================================================
+storybook-static/
+.styleguidist/
+
+# =============================================================================
+# DOCKER
+# =============================================================================
+.dockerignore
+docker-compose.override.yml
+
+# =============================================================================
+# LOCAL DEVELOPMENT
+# =============================================================================
+.local/
+local/
+.env.local
+
+# =============================================================================
+# SCREENSHOTS AND RECORDINGS
+# =============================================================================
+screenshots/
+recordings/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+# Keep public assets
+!public/**/*.png
+!public/**/*.jpg
+!public/**/*.jpeg
+!public/**/*.gif
+!public/**/*.webp
+!public/**/*.svg
+!public/**/*.ico
+
+# =============================================================================
+# BACKUP AND ARCHIVE FILES
+# =============================================================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.backup
+*.bak
+
+# =============================================================================
+# OS SPECIFIC
+# =============================================================================
+Icon?
+Icon?
+
+# =============================================================================
+# PROJECT SPECIFIC
+# =============================================================================
+# Add any project-specific ignore patterns here
+# Debug files
+debug-email.js
+debug-trim.js
+
+# Performance optimization scripts
+scripts/performance-optimize.js
+
+# Local deployment scripts
+scripts/deploy-local.sh
+scripts/deploy-local.bat
+
+# Coverage reports (keep for CI but ignore locally)
+agreeproof-backend/coverage/
+agreeproof-frontend/coverage/
+
+# IIS Express files
+IISExpress/
+My Web Sites/
+
+# React practice projects
+React-Pratice/
+
+# =============================================================================
+# EXCEPTIONS (FILES TO KEEP)
+# =============================================================================
+# Keep important configuration files
+!.gitignore
+!.github/
+!LICENSE
+!README.md
+!CONTRIBUTING.md
+!CHANGELOG.md
+!ARCHITECTURE.md
+!API.md
+!DEPLOYMENT.md
+!DEVELOPMENT.md
+!USER_GUIDE.md
+
+# Keep environment examples
+!.env.example
+!.env.production.example
+agreeproof-frontend/.env.production.example
+agreeproof-backend/.env.production.example
+
+# Keep deployment configs
+!vercel.json
+!render.yaml
+!Dockerfile
+
+# Keep database setup
+!database/
+!database/indexes.js
+!database/MONGODB_ATLAS_SETUP.md
+
+# Keep scripts
+!scripts/
+!scripts/deploy-local.sh
+!scripts/deploy-local.bat
