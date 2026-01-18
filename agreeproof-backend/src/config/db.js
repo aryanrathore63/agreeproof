@@ -8,10 +8,10 @@ const mockDB = {
 
 const connectDB = async () => {
   try {
-    // For development, use mock database
-    if (process.env.NODE_ENV === 'development') {
+    // Use mock database for Render deployment and development
+    if (process.env.NODE_ENV === 'development' || process.env.RENDER === 'true') {
       mockDB.connected = true;
-      console.log('Mock database connected (in-memory storage)');
+      console.log('Mock database connected (in-memory storage for Render/development)');
       return;
     }
     
@@ -85,5 +85,5 @@ module.exports = {
   disconnectDB,
   mockDB,
   mockOperations,
-  isUsingMock: () => process.env.NODE_ENV === 'development'
+  isUsingMock: () => process.env.NODE_ENV === 'development' || process.env.RENDER === 'true'
 };
