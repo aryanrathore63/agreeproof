@@ -58,6 +58,18 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Debug endpoint to check mock database status
+app.get('/debug', (req, res) => {
+  const { isUsingMock, mockDB } = require('./config/db');
+  res.json({
+    nodeEnv: process.env.NODE_ENV,
+    isRender: process.env.RENDER === 'true',
+    isUsingMock: isUsingMock(),
+    mockDBConnected: mockDB.connected,
+    mockAgreementsCount: mockDB.agreements.length
+  });
+});
+
 // API routes
 app.use('/api/agreements', require('./routes/agreementRoutes'));
 
