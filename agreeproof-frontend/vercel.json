@@ -56,12 +56,12 @@
     }
   ],
   "env": {
-    "REACT_APP_API_URL": "https://agreeproof-backend.onrender.com",
+    "REACT_APP_API_URL": "https://agreeproof.onrender.com",
     "REACT_APP_ENVIRONMENT": "production"
   },
   "build": {
     "env": {
-      "REACT_APP_API_URL": "https://agreeproof-backend.onrender.com",
+      "REACT_APP_API_URL": "https://agreeproof.onrender.com",
       "REACT_APP_ENVIRONMENT": "production"
     }
   },
