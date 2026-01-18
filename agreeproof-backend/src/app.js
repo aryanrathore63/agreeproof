@@ -6,7 +6,11 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'https://agreeproof.netlify.app',
+    'https://agreeproof.vercel.app'
+  ],
   credentials: true
 }));
 
