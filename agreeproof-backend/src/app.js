@@ -1,3 +1,4 @@
+// AgreeProof Backend API - v2.0 - Fixed share links
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
