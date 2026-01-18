@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CreateAgreementForm } from './components/CreateAgreementForm';
 import { AgreementView } from './components/AgreementView';
 import { Agreement } from './types/agreement';
@@ -6,6 +6,19 @@ import { Agreement } from './types/agreement';
 function App() {
   const [currentAgreement, setCurrentAgreement] = useState<Agreement | null>(null);
   const [activeView, setActiveView] = useState<'create' | 'view'>('create');
+  const [urlAgreementId, setUrlAgreementId] = useState<string>('');
+
+  // Extract agreement ID from URL on component mount
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path.startsWith('/a/') || path.startsWith('/agreement/')) {
+      const agreementId = path.split('/')[2];
+      if (agreementId) {
+        setUrlAgreementId(agreementId);
+        setActiveView('view');
+      }
+    }
+  }, []);
 
   const handleAgreementCreated = (agreement: Agreement) => {
     setCurrentAgreement(agreement);
@@ -58,7 +71,7 @@ function App() {
             <CreateAgreementForm onAgreementCreated={handleAgreementCreated} />
           ) : (
             <AgreementView
-              agreementId={currentAgreement?.agreementId || ''}
+              agreementId={urlAgreementId || currentAgreement?.agreementId || ''}
               onBack={handleBackToCreate}
             />
           )}
