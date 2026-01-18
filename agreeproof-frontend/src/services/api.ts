@@ -6,7 +6,9 @@ import {
   AgreementStatusResponse 
 } from '../types/agreement';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://agreeproof.onrender.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL
+  ? `${process.env.REACT_APP_API_URL}/api`
+  : 'https://agreeproof.onrender.com/api';
 
 class ApiService {
   private async request<T>(
