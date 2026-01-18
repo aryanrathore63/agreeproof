@@ -101,7 +101,7 @@ const createAgreement = async (req, res) => {
         },
         proofHash,
         status: 'PENDING',
-        shareLink: `https://agreeproof.com/agreement/${agreementId}`
+        shareLink: `https://agreeproof.netlify.app/agreement/${agreementId}`
       });
     } else {
       // Use real MongoDB
@@ -119,7 +119,7 @@ const createAgreement = async (req, res) => {
         },
         proofHash,
         status: 'PENDING',
-        shareLink: `https://agreeproof.com/agreement/${agreementId}`
+        shareLink: `https://agreeproof.netlify.app/agreement/${agreementId}`
       });
       await agreement.save();
     }
